@@ -6,7 +6,6 @@ extern crate ini;
 use ini::Ini;
 
 fn hide_console_window() {
-    return;
     use std::ptr;
     use winapi::um::wincon::GetConsoleWindow;
     use winapi::um::winuser::{ShowWindow, SW_HIDE};
@@ -28,6 +27,8 @@ fn write_sample_ini() {
         .set("sleep_sec", "300");
     conf.with_section(None::<String>)
         .set("wait_restart", "3");
+    conf.with_section(None::<String>)
+        .set("debug", "0");
     conf.write_to_file("conf.ini").unwrap();
 }
 
@@ -47,6 +48,12 @@ fn main() {
     println!("sleep_sec: {}", sleep_sec);
     let restart_wait = conf.section(None::<String>).unwrap().get("wait_restart").unwrap().parse::<u32>().unwrap();
     println!("wait_restart: {}", restart_wait);
+    let is_debug = conf.section(None::<String>).unwrap().get("debug").unwrap().parse::<u32>().unwrap();
+    println!("debug: {}", is_debug);
+    if (is_debug == 1) {
+    } else{
+        hide_console_window();
+    }
 
     let dst = std::env::args()
         .nth(1)
@@ -57,7 +64,6 @@ fn main() {
     let pinger = Pinger::new().unwrap();
     let mut buffer = Buffer::new();
 
-    hide_console_window();
     loop {
         match pinger.send(dst, &mut buffer) {
             Ok(rtt) => println!("Response time {} ms.", rtt),
